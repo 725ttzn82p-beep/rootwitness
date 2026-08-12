@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "notary-witness"
+version = "0.1.0"
+description = "Independently verify an append-only transparency log. Catch the log operator if they rewrite history."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "MVM Group" }]
+keywords = ["transparency-log", "merkle", "audit-log", "rfc6962", "verification"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Legal Industry",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Security :: Cryptography",
+  "Topic :: System :: Logging",
+]
+
+# Ed25519 signature verification is the only thing this needs beyond the
+# standard library. Everything else -- Merkle maths, the note format, HTTP,
+# state storage -- is stdlib on purpose, so that an auditor can read the whole
+# verifier without chasing a dependency tree.
+dependencies = ["cryptography>=41"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.urls]
+Homepage = "https://github.com/725ttzn82p-beep/notary-witness"
+Source = "https://github.com/725ttzn82p-beep/notary-witness"
+
+[project.scripts]
+notary-witness = "notary_witness.cli_witness:main"
+
+[tool.setuptools]
+packages = ["notary_witness"]
