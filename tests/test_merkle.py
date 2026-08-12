@@ -17,7 +17,7 @@ import hashlib
 
 import pytest
 
-from notary_witness import merkle
+from rootwitness import merkle
 
 MAX_N = 65  # crosses several powers of two, including 32 and 64
 

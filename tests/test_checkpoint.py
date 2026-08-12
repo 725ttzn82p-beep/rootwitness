@@ -16,10 +16,10 @@ import base64
 import pytest
 from cryptography.hazmat.primitives.asymmetric import ed25519
 
-from notary_witness import checkpoint as cp
-from notary_witness import merkle
+from rootwitness import checkpoint as cp
+from rootwitness import merkle
 
-ORIGIN = "notary.mvmgroup.io/log0"
+ORIGIN = "api.rootwitness.com/log0"
 
 
 def leaf_hashes(n: int) -> list[bytes]:

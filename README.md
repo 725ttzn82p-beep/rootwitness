@@ -1,8 +1,8 @@
-# notary-witness
+# rootwitness
 
 Verify an append-only log yourself, instead of believing the company that runs it.
 
-This is the verifier for [The Notary](https://notary-production-3af1.up.railway.app), a
+This is the verifier for [Root Witness](https://api.rootwitness.com), a
 transparency log for AI agent actions. You do not need an account, an API key, or
 our permission to use it. That is the entire point: if checking us required a
 credential from us, we would control who is allowed to catch us.
@@ -15,15 +15,15 @@ can be checked with it.
 ## Try it in ten seconds
 
 ```bash
-pip install git+https://github.com/725ttzn82p-beep/notary-witness
+pip install git+https://github.com/725ttzn82p-beep/rootwitness
 
-notary-witness verify \
-  --origin https://notary-production-3af1.up.railway.app/demo \
+rootwitness verify \
+  --origin https://api.rootwitness.com/demo \
   --log-key JC+94YSo0xpxjaUerN2HRKJtTBcXdyoXS6o2M7uX3EU=
 ```
 
 ```
-OK: signed checkpoint verified for https://notary-production-3af1.up.railway.app/demo
+OK: signed checkpoint verified for https://api.rootwitness.com/demo
 tree size: 10
 root: oDZuwpv/pjPlANNsUC1Ramy4dMzhR4XUqFVrWq1ZIic=
 ```
@@ -44,16 +44,16 @@ That is what a witness does.
 ## Running a real witness
 
 ```bash
-notary-witness init \
-  --origin https://notary-production-3af1.up.railway.app/demo \
+rootwitness init \
+  --origin https://api.rootwitness.com/demo \
   --log-key JC+94YSo0xpxjaUerN2HRKJtTBcXdyoXS6o2M7uX3EU=
 
-notary-witness check     # run this on a schedule
+rootwitness check     # run this on a schedule
 ```
 
 `init` generates your own signing key and stores it, with the log's current
-checkpoint, in `~/.notary-witness` (override with `--state-dir` or
-`NOTARY_WITNESS_STATE_DIR`).
+checkpoint, in `~/.rootwitness` (override with `--state-dir` or
+`ROOTWITNESS_STATE_DIR`).
 
 Every `check` fetches the newest checkpoint and demands a consistency proof from
 the size it already remembers. If the proof verifies, it accepts, cosigns, and
@@ -64,7 +64,7 @@ file.
 OK: consistent through 10 entries
 ```
 
-Use `notary-witness watch --interval 300` to poll continuously.
+Use `rootwitness watch --interval 300` to poll continuously.
 
 ## What a refusal gives you
 
@@ -110,7 +110,7 @@ The checks are deliberately simple enough to reimplement:
 ```
 GET  {origin}/checkpoint                       -> signed note, text
 GET  {origin}/proof/consistency?old=N&new=M    -> {"proof": [base64, ...]}
-GET  {host}/.well-known/notary-keys            -> public keys
+GET  {host}/.well-known/rootwitness-keys            -> public keys
 ```
 
 Hashes on the wire are base64. Merkle hashing follows RFC 6962: leaves are
@@ -122,10 +122,10 @@ you can read it end to end:
 
 | File | Purpose |
 |---|---|
-| `notary_witness/merkle.py` | RFC 6962 hashing, inclusion and consistency proofs |
-| `notary_witness/checkpoint.py` | signed-note parsing, signing, verification |
-| `notary_witness/witness.py` | the refusal logic and state store |
-| `notary_witness/cli_witness.py` | the command line interface |
+| `rootwitness/merkle.py` | RFC 6962 hashing, inclusion and consistency proofs |
+| `rootwitness/checkpoint.py` | signed-note parsing, signing, verification |
+| `rootwitness/witness.py` | the refusal logic and state store |
+| `rootwitness/cli_witness.py` | the command line interface |
 
 ## Tests
 

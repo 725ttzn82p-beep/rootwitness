@@ -74,8 +74,8 @@ from typing import Callable, Iterator
 
 from cryptography.hazmat.primitives.asymmetric import ed25519
 
-from notary_witness import merkle
-from notary_witness.checkpoint import (
+from rootwitness import merkle
+from rootwitness.checkpoint import (
     Checkpoint,
     CheckpointError,
     CheckpointSigner,

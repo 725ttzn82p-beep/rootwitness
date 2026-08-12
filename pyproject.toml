@@ -3,13 +3,13 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "notary-witness"
+name = "rootwitness"
 version = "0.1.0"
 description = "Independently verify an append-only transparency log. Catch the log operator if they rewrite history."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
-authors = [{ name = "MVM Group" }]
+authors = [{ name = "MVM Ventures, LLC" }]
 keywords = ["transparency-log", "merkle", "audit-log", "rfc6962", "verification"]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -31,11 +31,11 @@ dependencies = ["cryptography>=41"]
 dev = ["pytest>=7"]
 
 [project.urls]
-Homepage = "https://github.com/725ttzn82p-beep/notary-witness"
-Source = "https://github.com/725ttzn82p-beep/notary-witness"
+Homepage = "https://github.com/725ttzn82p-beep/rootwitness"
+Source = "https://github.com/725ttzn82p-beep/rootwitness"
 
 [project.scripts]
-notary-witness = "notary_witness.cli_witness:main"
+rootwitness = "rootwitness.cli_witness:main"
 
 [tool.setuptools]
-packages = ["notary_witness"]
+packages = ["rootwitness"]

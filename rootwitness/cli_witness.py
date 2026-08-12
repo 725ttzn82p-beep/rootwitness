@@ -1,4 +1,4 @@
-"""A small, local-only command line witness for one Notary log.
+"""A small, local-only command line witness for one Root Witness log.
 
 The command deliberately has no service dependency beyond the log URLs supplied
 at ``init``.  Its state directory contains the witness private key, public log
@@ -22,11 +22,11 @@ from urllib.request import Request, urlopen
 
 from cryptography.hazmat.primitives.asymmetric import ed25519
 
-from notary_witness.checkpoint import CheckpointSigner
-from notary_witness.checkpoint import verify as checkpoint_verify
-from notary_witness.witness import FileWitnessStore, LogMonitor, Witness
+from rootwitness.checkpoint import CheckpointSigner
+from rootwitness.checkpoint import verify as checkpoint_verify
+from rootwitness.witness import FileWitnessStore, LogMonitor, Witness
 
-DEFAULT_STATE_DIR = Path.home() / ".notary-witness"
+DEFAULT_STATE_DIR = Path.home() / ".rootwitness"
 CONFIG_FILE = "config.json"
 PRIVATE_KEY_FILE = "witness-ed25519.key"
 
@@ -38,7 +38,7 @@ def _urlopen(request: Request | str, timeout: float = 15.0):
 
 
 def _state_dir(value: str | None) -> Path:
-    return Path(value or os.environ.get("NOTARY_WITNESS_STATE_DIR", DEFAULT_STATE_DIR)).expanduser()
+    return Path(value or os.environ.get("ROOTWITNESS_STATE_DIR", DEFAULT_STATE_DIR)).expanduser()
 
 
 def _b64decode(value: str, what: str) -> bytes:
@@ -183,7 +183,7 @@ def _write_evidence(directory: Path, monitor: LogMonitor, last_note: dict[str, s
 
     reason = monitor.witness.violations[-1].args[0] if monitor.witness.violations else "unknown"
     lines = [
-        "NOTARY WITNESS EVIDENCE",
+        "ROOT WITNESS EVIDENCE",
         "",
         f"origin:      {monitor.origin}",
         f"detected_at: {stamp}",
@@ -370,7 +370,7 @@ def cmd_verify(args: argparse.Namespace) -> int:
     """Verify a public log's signed checkpoint with no account and no state.
 
     This is deliberately the lowest-barrier command in the tool. Anyone can
-    point it at any Notary log, including ours, and confirm that the checkpoint
+    point it at any Root Witness log, including ours, and confirm that the checkpoint
     really is signed by the key the log publishes. It writes nothing to disk.
 
     What this proves: the operator signed this (origin, size, root) triple, so
@@ -415,7 +415,7 @@ def cmd_verify(args: argparse.Namespace) -> int:
     print(
         "\nThis proves the operator signed this size and root, so they cannot\n"
         "later deny it. It does NOT prove they have never rewritten history --\n"
-        "for that, run `notary-witness init` and then `check` on a schedule, so\n"
+        "for that, run `rootwitness init` and then `check` on a schedule, so\n"
         "a stored earlier checkpoint forces them to produce a consistency proof."
     )
     return 0
@@ -439,7 +439,7 @@ def build_parser() -> argparse.ArgumentParser:
         ("status", "show the last accepted checkpoint", cmd_status),
     ):
         command = subcommands.add_parser(name, help=help_text)
-        command.add_argument("--state-dir", help="witness state directory (or NOTARY_WITNESS_STATE_DIR)")
+        command.add_argument("--state-dir", help="witness state directory (or ROOTWITNESS_STATE_DIR)")
         command.set_defaults(handler=handler)
 
     verify = subcommands.add_parser(
@@ -451,7 +451,7 @@ def build_parser() -> argparse.ArgumentParser:
     verify.set_defaults(handler=cmd_verify)
 
     watch = subcommands.add_parser("watch", help="poll continuously and alarm on refusal")
-    watch.add_argument("--state-dir", help="witness state directory (or NOTARY_WITNESS_STATE_DIR)")
+    watch.add_argument("--state-dir", help="witness state directory (or ROOTWITNESS_STATE_DIR)")
     watch.add_argument("--interval", type=float, default=60.0, help="seconds between polls (default: 60)")
     watch.set_defaults(handler=cmd_watch)
     return parser

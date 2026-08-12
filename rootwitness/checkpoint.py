@@ -69,7 +69,7 @@ from dataclasses import dataclass
 
 from cryptography.hazmat.primitives.asymmetric import ed25519
 
-from notary_witness import merkle
+from rootwitness import merkle
 
 # U+2014 followed by U+0020, per the signed-note grammar. Written as an escape
 # rather than a literal so it survives any editor that helpfully "fixes"

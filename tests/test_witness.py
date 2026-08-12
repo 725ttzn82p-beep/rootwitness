@@ -12,11 +12,11 @@ import threading
 import pytest
 from cryptography.hazmat.primitives.asymmetric import ed25519
 
-from notary_witness import merkle
-from notary_witness import witness as W
-from notary_witness.checkpoint import Checkpoint, CheckpointSigner, parse
+from rootwitness import merkle
+from rootwitness import witness as W
+from rootwitness.checkpoint import Checkpoint, CheckpointSigner, parse
 
-ORIGIN = "notary.mvmgroup.io/log0"
+ORIGIN = "api.rootwitness.com/log0"
 
 
 class FakeLog:
@@ -96,7 +96,7 @@ def test_cosignature_verifies_and_attaches_to_the_note(log, wit):
     assert response.ok
 
     cosigned = note + response.body
-    from notary_witness import checkpoint as cp
+    from rootwitness import checkpoint as cp
 
     assert cp.verify(cosigned, ORIGIN, log.signer.public_key).tree_size == 9
     assert cp.verify(cosigned, wit.signer.name, wit.signer.public_key).tree_size == 9
@@ -194,7 +194,7 @@ def test_violation_carries_the_signed_evidence(log, wit):
     violation = wit.violations[-1]
     assert violation.origin == ORIGIN
     # The evidence is the log's own signed note, so it stands on its own.
-    from notary_witness import checkpoint as cp
+    from rootwitness import checkpoint as cp
 
     assert cp.verify(violation.evidence, ORIGIN, log.signer.public_key)
 
@@ -532,19 +532,19 @@ def test_monitor_reports_a_log_that_withholds_proofs(log, wit):
 
 def test_evidence_retains_the_note_that_justified_the_accepted_state():
     """The pair is the case. A root hash alone is only the witness's own word."""
-    from notary_witness.witness import FileWitnessStore
+    from rootwitness.witness import FileWitnessStore
     import tempfile
 
     with tempfile.TemporaryDirectory() as d:
         store = FileWitnessStore(d)
-        cp = Checkpoint(origin="notary.test/acme", tree_size=4, root_hash=b"\x11" * 32)
+        cp = Checkpoint(origin="rootwitness.test/acme", tree_size=4, root_hash=b"\x11" * 32)
         with store.transaction(cp.origin) as txn:
-            txn.set(cp, "notary.test/acme\n4\nEREREREREQ==\n\n\u2014 notary.test/acme AAAA\n")
+            txn.set(cp, "rootwitness.test/acme\n4\nEREREREREQ==\n\n\u2014 rootwitness.test/acme AAAA\n")
         with store.transaction(cp.origin) as txn:
             assert txn.current is not None
             assert txn.current.tree_size == 4
             assert txn.current_note is not None
-            assert "notary.test/acme" in txn.current_note
+            assert "rootwitness.test/acme" in txn.current_note
 
 
 def test_state_written_before_note_retention_still_loads():
@@ -555,11 +555,11 @@ def test_state_written_before_note_retention_still_loads():
     import tempfile
     from pathlib import Path
 
-    from notary_witness.witness import FileWitnessStore
+    from rootwitness.witness import FileWitnessStore
 
     with tempfile.TemporaryDirectory() as d:
         store = FileWitnessStore(d)
-        origin = "notary.test/acme"
+        origin = "rootwitness.test/acme"
         safe = b64.urlsafe_b64encode(origin.encode()).decode().rstrip("=")
         Path(d, f"{safe}.json").write_text(
             js.dumps({"origin": origin, "tree_size": 7, "root_hash": b64.b64encode(b"\x22" * 32).decode()})
