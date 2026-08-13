@@ -567,3 +567,44 @@ def test_state_written_before_note_retention_still_loads():
         with store.transaction(origin) as txn:
             assert txn.current is not None and txn.current.tree_size == 7
             assert txn.current_note is None
+
+
+def test_init_accepts_the_hex_key_published_by_the_keys_endpoint(tmp_path):
+    """A customer without their signup response gets hex from /{log}/keys.
+
+    The two spellings are the same 32 bytes. Rejecting one of them strands a
+    paying user inside their first five minutes, and the 64 hex characters are
+    themselves valid base64 (decoding to 48 bytes), so the failure arrives as
+    a misleading "not valid base64".
+    """
+    import base64
+    from rootwitness.cli_witness import build_parser, cmd_init
+
+    raw = bytes(range(32))
+    origin = "https://api.rootwitness.com/hex-log"
+
+    hex_dir = tmp_path / "hex"
+    args = build_parser().parse_args(
+        ["init", "--origin", origin, "--log-key", raw.hex(), "--state-dir", str(hex_dir)]
+    )
+    assert cmd_init(args) == 0
+
+    b64_dir = tmp_path / "b64"
+    args = build_parser().parse_args(
+        [
+            "init",
+            "--origin",
+            origin,
+            "--log-key",
+            base64.b64encode(raw).decode(),
+            "--state-dir",
+            str(b64_dir),
+        ]
+    )
+    assert cmd_init(args) == 0
+
+    import json
+
+    hex_cfg = json.loads((hex_dir / "config.json").read_text())
+    b64_cfg = json.loads((b64_dir / "config.json").read_text())
+    assert hex_cfg["log_key"] == b64_cfg["log_key"]

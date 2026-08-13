@@ -249,6 +249,17 @@ def cmd_init(args: argparse.Namespace) -> int:
             log_key = candidate
     except ValueError:
         pass
+    if log_key is None:
+        # The /{log}/keys endpoint publishes the same 32 bytes as hex, so a user
+        # who no longer has their signup response will paste hex here. Note that
+        # 64 hex characters are themselves valid base64 (decoding to 48 bytes),
+        # so this has to come after the length-checked base64 attempt above.
+        stripped = raw_log_key.strip().removeprefix("0x")
+        if len(stripped) == 64:
+            try:
+                log_key = bytes.fromhex(stripped)
+            except ValueError:
+                pass
     if log_key is None and "+" in raw_log_key:
         # First "+", not last: the name cannot contain "+", the base64 key can.
         _, _, tail = raw_log_key.partition("+")
@@ -258,7 +269,11 @@ def cmd_init(args: argparse.Namespace) -> int:
             print(f"init: {exc}", file=sys.stderr)
             return 1
     if log_key is None:
-        print("init: --log-key is not valid base64", file=sys.stderr)
+        print(
+            "init: --log-key must be a 32-byte Ed25519 public key, as base64 "
+            "(from your signup response) or hex (from /{log}/keys)",
+            file=sys.stderr,
+        )
         return 1
     if len(log_key) != 32:
         print("init: --log-key must decode to a 32-byte Ed25519 public key", file=sys.stderr)
